@@ -7,9 +7,13 @@ declare const ort: any;
 const INPUT_SIZE: [number, number] = [384, 384];
 const DOWNSAMPLE_RATIO = 0.25;
 
+// @ts-ignore
 let r1i: ort.Tensor | null = null;
+// @ts-ignore
 let r2i: ort.Tensor | null = null;
+// @ts-ignore
 let r3i: ort.Tensor | null = null;
+// @ts-ignore
 let r4i: ort.Tensor | null = null;
 
 const downsampleRatioTensor = new ort.Tensor('float32', new Float32Array([DOWNSAMPLE_RATIO]), [1]);

@@ -1,29 +1,50 @@
-<!-- client/index.html -->
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тестирование сегментации</title>
-    <style>
-        /* Стили для удобства отладки */
-        body { font-family: sans-serif; display: flex; gap: 20px; }
-        video, canvas { border: 2px solid #ccc; width: 640px; height: 360px; }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
-</head>
-<body>
-    <div>
-        <h3>Камера (вход)</h3>
-        <!-- Скрываем видео, чтобы пользователь видел только результат на canvas -->
-        <video id="webcam"></video>
-    </div>
-    <div>
-        <h3>Результат (выход)</h3>
-        <canvas id="output"></canvas>
-    </div>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Тестирование сегментации</title>
+        <link rel="stylesheet" href="./style.css" />
+        <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+    </head>
+    <body>
+        <div class="main">
+            <section class="toolbar">
+                <div class="settings__container">
+                    <div class="settings__header">
+                        <img class="settings__icon" src="./src/assets/icons/Settings.svg" alt="Настройки">
+                        <h1>Настройки</h1>
+                    </div>
+                    <div class="settings__body">
+                        <div class="downsample_ratio">
+                            <h3>DOWNSAMPLE_RATIO</h3>
+                            <label class="switch">
+                                <input type="range" id="downsample-slider" min="0" max="1" step="0.01" value="0.25" class="slider">
+                                <span id="slider-value">1.00</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="customization__container">
+                    <div class="customization__header">
+                        <img class="customization__icon" src="./src/assets/icons/Edit_Pencil_Line_01.svg" alt="Кастомизация">
+                        <h1>Кастомизация</h1>
+                    </div>
+                </div>
+            </section>
+            <section class="video">
+                <div class="webcam__container">
+                    <p>Исходное</p>
+                    <video id="webcam"></video>
+                </div>
+                <div class="output__container">
+                    <p>Выходное</p>
+                    <canvas id="output"></canvas>
+                </div>
+            </section>
+        </div>
 
-    <!-- САМОЕ ВАЖНОЕ: подключаем точку входа вашего приложения -->
-    <script type="module" src="/src/index.ts"></script>
-</body>
+        <script type="module" src="/src/index.ts"></script>
+        <script type="module" src="script.ts"></script>
+    </body>
 </html>
