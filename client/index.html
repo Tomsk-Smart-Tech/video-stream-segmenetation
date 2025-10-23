@@ -1,0 +1,28 @@
+<!-- client/index.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестирование сегментации</title>
+    <style>
+        /* Стили для удобства отладки */
+        body { font-family: sans-serif; display: flex; gap: 20px; }
+        video, canvas { border: 2px solid #ccc; width: 640px; height: 360px; }
+    </style>
+</head>
+<body>
+    <div>
+        <h3>Камера (вход)</h3>
+        <!-- Скрываем видео, чтобы пользователь видел только результат на canvas -->
+        <video id="webcam" style="display: none;"></video>
+    </div>
+    <div>
+        <h3>Результат (выход)</h3>
+        <canvas id="output"></canvas>
+    </div>
+
+    <!-- САМОЕ ВАЖНОЕ: подключаем точку входа вашего приложения -->
+    <script type="module" src="/src/index.ts"></script>
+</body>
+</html>
