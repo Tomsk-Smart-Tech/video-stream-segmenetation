@@ -4,7 +4,7 @@ import { initializeModel } from './model';
 import { processFrame } from './frameProcessor';
 import type { InferenceSession } from 'onnxruntime-web';
 
-const MODEL_PATH = '/model/rvm_mobilenetv3_fp32.onnx';
+import modelUrl from '../assets/rvm_mobilenetv3_fp32.onnx';
 
 export async function run() {
   try {
@@ -14,7 +14,7 @@ export async function run() {
 
     const [_, session] = await Promise.all([
       startCamera(videoElement),
-      initializeModel(MODEL_PATH)
+      initializeModel(modelUrl)
     ]);
 
     outputCanvas.width = videoElement.videoWidth;

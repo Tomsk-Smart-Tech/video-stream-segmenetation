@@ -26,7 +26,7 @@ export default defineConfig({
       'Cross-Origin-Embedder-Policy': 'require-corp'
     }
   },
-  assetsInclude: ['**/*.wasm', '**/*.mjs'],
+  assetsInclude: ['**/*.wasm', '**/*.mjs', '**/*.onnx'],
   
   appType: 'spa',
   

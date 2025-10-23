@@ -1,18 +1,18 @@
 // client/src/core/model.ts
 import type { InferenceSession } from 'onnxruntime-web';
 
+declare const ort: any;
 
 export async function initializeModel(modelPath: string): Promise<InferenceSession> {
   try {
 
-    const ort = await import('onnxruntime-web');
 
     // Включаем подробное логирование для отладки
     ort.env.debug = true;
     ort.env.logLevel = 'verbose';
     
     // Устанавливаем пути к файлам
-    ort.env.wasm.wasmPaths = '/';
+    ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/";
 
     const session = await ort.InferenceSession.create(modelPath, {
       executionProviders: ['webgpu'],

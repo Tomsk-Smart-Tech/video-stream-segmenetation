@@ -2,13 +2,19 @@
 import type { InferenceSession } from 'onnxruntime-web';
 import * as tf from '@tensorflow/tfjs'; // TensorFlow.js для препроцессинга
 
+declare const ort: any;
+
+let r1i: ort.Tensor | null = null;
+let r2i: ort.Tensor | null = null;
+let r3i: ort.Tensor | null = null;
+let r4i: ort.Tensor | null = null;
+
+
 export async function processFrame(
   videoElement: HTMLVideoElement,
   session: InferenceSession,
   outputCanvas: HTMLCanvasElement,
 ) {
-
-  const ort = await import('onnxruntime-web');
 
   const inputTensor = tf.tidy(() => {
     const frame = tf.browser.fromPixels(videoElement);
@@ -27,11 +33,14 @@ export async function processFrame(
   // формат, понятный ONNX Runtime
   const onnxInput = new ort.Tensor('float32', inputTensor.dataSync(), inputTensor.dims);
   
-  const feeds = { 'input': onnxInput };
+const inputName = session.inputNames[0]; // Берем имя первого входа
+const feeds = { [inputName]: onnxInput };
   
   const results = await session.run(feeds);
-  
-  const maskTensor = results['output'];
+
+// Узнали из Netron или логов имя нужного выхода
+const outputName = session.outputNames[0]; // Берем имя первого выхода
+const maskTensor = results[outputName];
   
 
   // TODO: логика для:
