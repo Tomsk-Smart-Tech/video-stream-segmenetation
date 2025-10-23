@@ -1,10 +1,10 @@
 // client/src/core/frameProcessor.ts
-import { Tensor, InferenceSession } from 'onnxruntime-web';
+import ort from 'onnxruntime-web';
 import * as tf from '@tensorflow/tfjs'; // TensorFlow.js для препроцессинга
 
 export async function processFrame(
   videoElement: HTMLVideoElement,
-  session: InferenceSession,
+  session: ort.InferenceSession,
   outputCanvas: HTMLCanvasElement,
 ) {
 
@@ -23,7 +23,7 @@ export async function processFrame(
   });
 
   // формат, понятный ONNX Runtime
-  const onnxInput = new Tensor('float32', inputTensor.dataSync(), inputTensor.dims);
+  const onnxInput = new ort.Tensor('float32', inputTensor.dataSync(), inputTensor.dims);
   
   const feeds = { 'input': onnxInput };
   

@@ -1,14 +1,21 @@
 // client/src/core/model.ts
-import { InferenceSession, env } from 'onnxruntime-web';
+import ort from 'onnxruntime-web';
 
-export async function initializeModel(modelPath: string): Promise<InferenceSession> {
+export async function initializeModel(modelPath: string): Promise<ort.InferenceSession> {
   try {
-    env.wasm.wasmPaths = '/'; // путь к wasm файлам onnxruntime
+    // Включаем подробное логирование для отладки
+    ort.env.debug = true;
+    ort.env.logLevel = 'verbose';
+    
+    // Устанавливаем пути к файлам
+    ort.env.wasm.wasmPaths = '/';
 
-    const session = await InferenceSession.create(modelPath, {
-      executionProviders: ['webgpu', 'webgl'], // Приоритет: сначала WebGPU, потом WebGL
+    const session = await ort.InferenceSession.create(modelPath, {
+      executionProviders: ['webgpu'],
+      graphOptimizationLevel: 'all',
+      enableCpuMemArena: true,
     });
-    console.log('Модель ONNX успешно загружена. Бэкенд:', session.executionProviders);
+    console.log('Модель ONNX успешно загружена');
     return session;
 
   } catch (e) {

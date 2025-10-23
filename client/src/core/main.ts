@@ -2,9 +2,9 @@
 import { startCamera } from './camera';
 import { initializeModel } from './model';
 import { processFrame } from './frameProcessor';
-import { InferenceSession } from 'onnxruntime-web';
+import ort from 'onnxruntime-web';
 
-const MODEL_PATH = '../ml/rvm_mobilenetv3_fp32.onnx';
+const MODEL_PATH = '/model/rvm_mobilenetv3_fp32.onnx';
 
 export async function run() {
   try {
@@ -26,6 +26,7 @@ export async function run() {
       requestAnimationFrame(gameLoop);
     }
     
+    // Запускаем цикл в первый раз
     gameLoop();
 
   } catch (error) {

@@ -150,3 +150,7 @@ Session.vim
 .netrwhist
 # auto-generated tag files
 tags
+
+client/public/models/test.html
+.mjs
+.jsep

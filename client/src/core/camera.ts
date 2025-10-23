@@ -15,7 +15,7 @@ export async function startCamera(videoElement: HTMLVideoElement): Promise<void>
 
     videoElement.srcObject = stream;
     
-    // Ждем, пока видео начнет проигрываться, чтобы получить его реальные размеры
+    // видео начнет проигрываться => реальные размеры
     await new Promise((resolve) => {
       videoElement.onloadedmetadata = () => {
         videoElement.play();
