@@ -2,7 +2,7 @@
 import { startCamera } from './camera';
 import { initializeModel } from './model';
 import { processFrame } from './frameProcessor';
-import ort from 'onnxruntime-web';
+import type { InferenceSession } from 'onnxruntime-web';
 
 const MODEL_PATH = '/model/rvm_mobilenetv3_fp32.onnx';
 

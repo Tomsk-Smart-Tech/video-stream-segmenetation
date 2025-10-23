@@ -1,8 +1,12 @@
 // client/src/core/model.ts
-import ort from 'onnxruntime-web';
+import type { InferenceSession } from 'onnxruntime-web';
 
-export async function initializeModel(modelPath: string): Promise<ort.InferenceSession> {
+
+export async function initializeModel(modelPath: string): Promise<InferenceSession> {
   try {
+
+    const ort = await import('onnxruntime-web');
+
     // Включаем подробное логирование для отладки
     ort.env.debug = true;
     ort.env.logLevel = 'verbose';

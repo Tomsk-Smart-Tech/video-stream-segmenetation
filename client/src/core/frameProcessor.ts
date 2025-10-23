@@ -1,12 +1,14 @@
 // client/src/core/frameProcessor.ts
-import ort from 'onnxruntime-web';
+import type { InferenceSession } from 'onnxruntime-web';
 import * as tf from '@tensorflow/tfjs'; // TensorFlow.js для препроцессинга
 
 export async function processFrame(
   videoElement: HTMLVideoElement,
-  session: ort.InferenceSession,
+  session: InferenceSession,
   outputCanvas: HTMLCanvasElement,
 ) {
+
+  const ort = await import('onnxruntime-web');
 
   const inputTensor = tf.tidy(() => {
     const frame = tf.browser.fromPixels(videoElement);
