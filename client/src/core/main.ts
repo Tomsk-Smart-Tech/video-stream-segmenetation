@@ -6,8 +6,11 @@ import modelUrl from '../assets/model_q4f16.onnx?url';
 
 export async function run() {
   try {
+    // Получаем все нужные HTML элементы
     const videoElement = document.getElementById('webcam') as HTMLVideoElement;
     const outputCanvas = document.getElementById('output__mask') as HTMLCanvasElement;
+    // const debugPanel = document.getElementById('debug-panel') as HTMLDivElement;
+    // if (!videoElement || !outputCanvas || !debugPanel) throw new Error('Не найдены video, canvas или debug-panel элементы');
 
     await startCamera(videoElement);
     const session = await initializeModel(modelUrl);
