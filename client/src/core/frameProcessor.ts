@@ -1,87 +1,99 @@
 // client/src/core/frameProcessor.ts
-import type { InferenceSession} from 'onnxruntime-web';
+import type { InferenceSession, Tensor } from 'onnxruntime-web';
 import * as tf from '@tensorflow/tfjs';
 
 declare const ort: any;
 
-const INPUT_SIZE: [number, number] = [384, 384];
-const DOWNSAMPLE_RATIO = 0.25;
 
-let r1i: ort.Tensor | null = null;
-let r2i: ort.Tensor | null = null;
-let r3i: ort.Tensor | null = null;
-let r4i: ort.Tensor | null = null;
+const MODEL_INPUT_SIZE: [number, number] = [512, 288]; // [ширина, высота]
 
-const downsampleRatioTensor = new ort.Tensor('float32', new Float32Array([DOWNSAMPLE_RATIO]), [1]);
+// Временный canvas для маски
+const maskCanvas = document.createElement('canvas');
+const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
+maskCanvas.width = MODEL_INPUT_SIZE[0];
+maskCanvas.height = MODEL_INPUT_SIZE[1];
 
 export async function processFrame(
   videoElement: HTMLVideoElement,
   session: InferenceSession,
-  outputCanvas: HTMLCanvasElement,
-) {
+  outputCtx: CanvasRenderingContext2D,
+): Promise<{ inferenceTime: number, totalTime: number }> {
 
+  const totalStartTime = performance.now(); 
 
   const frame = tf.browser.fromPixels(videoElement);
-  const resized = tf.image.resizeBilinear(frame, INPUT_SIZE);
+  const resized = tf.image.resizeBilinear(frame, [MODEL_INPUT_SIZE[1], MODEL_INPUT_SIZE[0]]);
   const normalized = resized.div(255.0);
   const transposed = normalized.transpose([2, 0, 1]);
-  const inputTensor = transposed.expandDims(0); // Финальный 4D тензор
-
-
-  const inputData = inputTensor.dataSync()
-
-  const src = new ort.Tensor('float32', inputData, inputTensor.shape
-);
-  console.log(inputTensor.shape)
-  console.log(src)
-
+  const inputTensorTf = transposed.expandDims(0);
+  const inputData = inputTensorTf.dataSync();
+  const ortInputTensor = new ort.Tensor('float32', inputData, inputTensorTf.shape);
   frame.dispose();
   resized.dispose();
   normalized.dispose();
   transposed.dispose();
-  inputTensor.dispose();
+  inputTensorTf.dispose();
 
-  if (!r1i) {
-    console.log("Инициализация динамических рекуррентных состояний...");
-    const batchSize = 1;
-    // Рассчитываем внутренние размеры
-    const h = INPUT_SIZE[0] * DOWNSAMPLE_RATIO;
-    const w = INPUT_SIZE[1] * DOWNSAMPLE_RATIO;
+  const feeds = { 'input': ortInputTensor };
+  
+  const inferenceStartTime = performance.now(); 
+  const results = await session.run(feeds);
+  const inferenceEndTime = performance.now();
+  
+  const mask = results['output'];
 
-    // Берем количество каналов из выходов r*o
-    r1i = new ort.Tensor('float32', new Float32Array(batchSize * 16 * h * w).fill(0), [batchSize, 16, h, w]);
-    r2i = new ort.Tensor('float32', new Float32Array(batchSize * 20 * h * w).fill(0), [batchSize, 20, h, w]);
-    r3i = new ort.Tensor('float32', new Float32Array(batchSize * 40 * h * w).fill(0), [batchSize, 40, h, w]);
-    r4i = new ort.Tensor('float32', new Float32Array(batchSize * 64 * h * w).fill(0), [batchSize, 64, h, w]);
+  const maskImageData = maskTensorToImageData(mask);
+  maskCtx!.putImageData(maskImageData, 0, 0);
+  const outputCanvas = outputCtx.canvas;
+  outputCtx.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
+  outputCtx.drawImage(videoElement, 0, 0, outputCanvas.width, outputCanvas.height);
+  outputCtx.globalCompositeOperation = 'destination-in';
+  outputCtx.drawImage(maskCanvas, 0, 0, outputCanvas.width, outputCanvas.height);
+  outputCtx.globalCompositeOperation = 'source-over';
+
+  const totalEndTime = performance.now();
+  
+  return {
+    inferenceTime: inferenceEndTime - inferenceStartTime,
+    totalTime: totalEndTime - totalStartTime
+  };
+}
+
+
+
+function maskTensorToImageData(maskTensor: Tensor): ImageData {
+  const [_, __, height, width] = maskTensor.dims;
+  const data = maskTensor.data as Float32Array;
+  
+  const imageData = new ImageData(width, height);
+  const pixels = imageData.data;
+
+  const DENOISE_THRESHOLD = 0.15; 
+
+  const HARDEN_THRESHOLD = 0.85;
+
+  for (let i = 0; i < data.length; i++) {
+    let maskValue = data[i];
+
+
+    if (maskValue < DENOISE_THRESHOLD) {
+      maskValue = 0;
+    } 
+    else if (maskValue > HARDEN_THRESHOLD) {
+      maskValue = 1;
+    }
+  
+    else {
+      maskValue = (maskValue - DENOISE_THRESHOLD) / (HARDEN_THRESHOLD - DENOISE_THRESHOLD);
+    }
+    
+    const pixelIndex = i * 4;
+    
+    pixels[pixelIndex] = 255;     // R
+    pixels[pixelIndex + 1] = 255; // G
+    pixels[pixelIndex + 2] = 255; // B
+    pixels[pixelIndex + 3] = maskValue * 255; // Alpha
   }
 
- const feeds = {
-    'src': src,
-    'r1i': r1i!,
-    'r2i': r2i!,
-    'r3i': r3i!,
-    'r4i': r4i!,
-    'downsample_ratio': downsampleRatioTensor
-  };
-
-  const results = await session.run(feeds);
-
-  r1i = results['r1o'];
-  r2i = results['r2o'];
-  r3i = results['r3o'];
-  r4i = results['r4o'];
-
-  // ПОЛУЧЕНИЕ РЕЗУЛЬТАТА (МАСКИ)
-  const mask = results['pha']; //(прозрачность)
-  const foreground = results['fgr'];
-
-  console.log("Маска успешно получена!", mask);
-  console.log("Маска (pha) и передний план (fgr) успешно получены!");
-  console.log("Размер маски:", mask.dims);
-
-  // TODO: логика для:
-  // Преобразования выходного тензора maskTensor в изображение (маску)
-  // Отрисовки фона на outputCanvas
-  // Наложения изображения пользователя на фон с использованием маски
-
+  return imageData;
 }

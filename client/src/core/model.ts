@@ -1,23 +1,18 @@
 // client/src/core/model.ts
 import type { InferenceSession } from 'onnxruntime-web';
 
+// Объявляем, что переменная ort будет доступна глобально (из CDN скрипта)
 declare const ort: any;
 
 export async function initializeModel(modelPath: string): Promise<InferenceSession> {
   try {
-
-
-    // Включаем подробное логирование для отладки
-    ort.env.debug = true;
-    ort.env.logLevel = 'verbose';
-    
-    // Устанавливаем пути к файлам
+    // Устанавливаем пути к wasm-файлам. Это важно для работы бэкенда wasm.
     ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/";
 
     const session = await ort.InferenceSession.create(modelPath, {
-      executionProviders: ['webgpu'],
+      // Пытаемся использовать webgpu, если не получится - откатываемся на wasm
+      executionProviders: ['webgpu', 'wasm'], 
       graphOptimizationLevel: 'all',
-      enableCpuMemArena: true,
     });
     console.log('Модель ONNX успешно загружена');
     return session;

@@ -7,12 +7,42 @@
     <title>Тестирование сегментации</title>
     <style>
         /* Стили для удобства отладки */
-        body { font-family: sans-serif; display: flex; gap: 20px; }
-        video, canvas { border: 2px solid #ccc; width: 640px; height: 360px; }
+        body { 
+            font-family: sans-serif; 
+            display: flex; 
+            gap: 20px; 
+            background-color: #f0f0f0; /* Добавим фон, чтобы лучше видеть элементы */
+            padding: 20px;
+        }
+        video, canvas { 
+            border: 2px solid #ccc; 
+            width: 640px; 
+            height: 360px; 
+            background-color: #fff;
+        }
+
+        /* Стили для дебаг панели */
+        #debug-panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.75);
+            color: #00ff00; /* Классический зеленый цвет */
+            font-family: monospace;
+            font-size: 16px;
+            border-radius: 5px;
+            z-index: 1000; /* Чтобы панель была поверх всего */
+            line-height: 1.5; /* Увеличим межстрочный интервал для читаемости */
+        }
     </style>
+    <!-- Загружаем библиотеку из CDN, как ты и хотел -->
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
 </head>
 <body>
+    <!-- 1. ДОБАВИЛИ ПАНЕЛЬ ДЛЯ ДЕБАГА -->
+    <div id="debug-panel">Загрузка...</div>
+
     <div>
         <h3>Камера (вход)</h3>
         <!-- Скрываем видео, чтобы пользователь видел только результат на canvas -->
@@ -23,7 +53,7 @@
         <canvas id="output"></canvas>
     </div>
 
-    <!-- САМОЕ ВАЖНОЕ: подключаем точку входа вашего приложения -->
-    <script type="module" src="/src/index.ts"></script>
+    <!-- 2. ИСПРАВИЛИ ПУТЬ НА БОЛЕЕ НАДЕЖНЫЙ -->
+    <script type="module" src="./src/index.ts"></script>
 </body>
 </html>
