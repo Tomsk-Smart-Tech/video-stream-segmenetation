@@ -9,6 +9,11 @@
     </head>
     <body>
         <div class="main">
+            <div id="performance-overlay">
+                <div id="fps-display">FPS: --</div>
+                <div id="latency-display">Latency: -- ms</div>
+                <div id="cpu-display">Total Frame: -- ms</div>
+            </div>
             <section class="toolbar">
                 <div class="settings__container">
                     <div class="settings__header">
@@ -20,13 +25,34 @@
                             <h3>DOWNSAMPLE_RATIO</h3>
                             <label class="switch">
                                 <input type="range" id="downsample-slider" min="0" max="1" step="0.01" value="0.25" class="slider">
-                                <span id="slider-value">1.00</span>
+                                <span id="slider-value">0.25</span>
+                            </label>
+                        </div>
+                        <div class="setting__container EMA">
+                            <h3>Темпоральная стабилизация</h3>
+                            <label class="switch">
+                                <input type="range" id="EMA-slider" min="0" max="1" step="0.01" value="0.8" class="slider">
+                                <span class="value">0.8</span>
+                            </label>
+                        </div>
+                        <div class="setting__container NOISE_CUTOFF">
+                            <h3>NOISE_CUTOFF</h3>
+                            <label class="switch">
+                                <input type="range" id="NOISE_CUTOFF-slider" min="0.04" max="0.08" step="0.005" value="0.06" class="slider">
+                                <span class="value">0.06</span>
+                            </label>
+                        </div>
+                        <div class="setting__container HIGH_THRESHOLD">
+                            <h3>HIGH_THRESHOLD</h3>
+                            <label class="switch">
+                                <input type="range" id="HIGH_THRESHOLD-slider" min="0.92" max="0.98" step="0.005" value="0.95" class="slider">
+                                <span class="value">0.95</span>
                             </label>
                         </div>
                         <div class="privacy__level">
                             <div class="title__privacy-level">
                                 <img class="privacy__icon" src="./src/assets/icons/Shield.svg" alt="Приватность">
-                                <h3>Уровень приватности</h3>
+                                <h3>Уровень открытости</h3>
                             </div>
                             <div class="privacy-selector">
                                 <button class="privacy-option active low" data-key="low" data-full-name="Low" data-short-name="L">
@@ -36,7 +62,7 @@
                                     M
                                 </button>
                                 <button class="privacy-option high" data-key="high" data-full-name="High" data-short-name="H">
-                                    H
+                                    High
                                 </button>
                             </div>
                         </div>
@@ -45,6 +71,7 @@
                 </div>
                 <div class="customization__container">
                     <div class="customization__header">
+                        <img class="privacy__icon" src="./src/assets/icons/Edit.svg" alt="Приватность">
                         <h1>Кастомизация</h1>
                     </div>
                     <div class="customization__container">
@@ -88,18 +115,29 @@
                                     </label>
                                     <input type="file" id="qr-upload-input" accept="image/*" hidden>
                                 </div>
+                                <div class="control-group"><label for="slogan-input">Девиз компании</label><input type="text" id="slogan-input"></div>
+                                <div class="control-group">
+                                    <label for="company-logo-upload-input" class="custom-upload-button">
+                                        <img src="src/assets/icons/Folder.svg" alt="">
+                                        <span>Загрузить логотип</span>
+                                    </label>
+                                    <input type="file" id="company-logo-upload-input" accept="image/*" hidden>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
             <section class="video">
-                <div class="webcam__container">
-                    <p>Исходное</p>
-                    <video id="webcam"></video>
+                <div class="video__container">
+                    <div class="webcam__container">
+                        <p>Исходное</p>
+                        <video id="webcam"></video>
+                        <p>Выходное</p>
+                    </div>
+
                 </div>
                 <div class="output__container">
-                    <p>Выходное</p>
                     <canvas id="output"></canvas>
                     <canvas id="output__mask"></canvas>
                 </div>
@@ -109,5 +147,6 @@
         <script type="module" src="/src/index.ts"></script>
         <script type="module" src="script.ts"></script>
         <script type="module" src="customization.ts"></script>
+        <script type="module" src="performance.ts"></script>
     </body>
 </html>

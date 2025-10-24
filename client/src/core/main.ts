@@ -6,11 +6,8 @@ import modelUrl from '../assets/model_q4f16.onnx?url';
 
 export async function run() {
   try {
-    // Получаем все нужные HTML элементы
     const videoElement = document.getElementById('webcam') as HTMLVideoElement;
     const outputCanvas = document.getElementById('output__mask') as HTMLCanvasElement;
-    // const debugPanel = document.getElementById('debug-panel') as HTMLDivElement;
-    // if (!videoElement || !outputCanvas || !debugPanel) throw new Error('Не найдены video, canvas или debug-panel элементы');
 
     await startCamera(videoElement);
     const session = await initializeModel(modelUrl);
@@ -23,22 +20,25 @@ export async function run() {
     let frameCount = 0;
     let lastTime = performance.now();
 
+    const fpsDisplay = document.getElementById('fps-display') as HTMLElement;
+    const latencyDisplay = document.getElementById('latency-display') as HTMLElement;
+    const cpuDisplay = document.getElementById('cpu-display') as HTMLElement;
+
     async function gameLoop() {
       const timings = await processFrame(videoElement, session, ctx);
 
-      // const currentTime = performance.now();
-      // frameCount++;
-      // if (currentTime - lastTime >= 500) {
-      //   const fps = (frameCount / (currentTime - lastTime)) * 1000;
-      //
-      //   // debugPanel.innerHTML = `
-      //   //   FPS: ${fps.toFixed(1)} <br/>
-      //   //   Inference: ${timings.inferenceTime.toFixed(2)} ms <br/>
-      //   //   Total Frame: ${timings.totalTime.toFixed(2)} ms
-      //   // `;
-      //   frameCount = 0;
-      //   lastTime = currentTime;
-      // }
+      const currentTime = performance.now();
+      frameCount++;
+      if (currentTime - lastTime >= 500) {
+        const fps = (frameCount / (currentTime - lastTime)) * 1000;
+
+        fpsDisplay.innerText = `FPS: ${fps.toFixed(1)}`
+        latencyDisplay.innerText = `Latency: ${timings.inferenceTime.toFixed(2)} ms`
+        cpuDisplay.innerText = `Total Frame: ${timings.totalTime.toFixed(2)} ms`
+
+        frameCount = 0;
+        lastTime = currentTime;
+      }
       requestAnimationFrame(gameLoop);
     }
     

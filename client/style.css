@@ -42,21 +42,18 @@ body,
     align-items:  center;
 }
 
-
-
 .main {
     display: flex;
     flex-direction: row;
     gap: 20px;
     padding: 20px;
 
-    width: 95vw;
+    width: 85vw;
     height: 100vh;
 
     border-radius: 20px;
     box-sizing: border-box;
 }
-
 
 .toolbar {
     display: flex;
@@ -88,14 +85,14 @@ body,
     display: flex;
     flex-direction: column;
     flex: 2;
-    /*gap: 20px;*/
     justify-content: center;
-    align-items: center;
+
 }
 
 video {
+    margin: auto;
     border: 2px solid #3a3b40;
-    width: 50%;
+    width: 30%;
     aspect-ratio: 16 / 9;
     border-radius: 12px;
 }
@@ -107,11 +104,15 @@ canvas {
     border-radius: 12px;
 }
 
+.webcam__container {
+    width: 100%;
+}
 
-
-.webcam__container,
 .output__container {
-    width: 90%;
+    position: relative;
+    /* Задаем пропорции, чтобы контейнер не схлопывался */
+    width: 100%;
+    aspect-ratio: 16 / 9;
 }
 
 p {
@@ -124,12 +125,9 @@ p {
 .settings__header {
     display: flex;
     align-items: center;
-
     height: 26px;
-
     padding: 16px;
     gap: 8px;
-
     border-bottom:  1px solid #3a3b40;
 }
 
@@ -172,7 +170,7 @@ p {
 .slider {
     -webkit-appearance: none;
     appearance: none;
-    width: 200px;
+    width: 100px;
     height: 8px;
     background: #4a4d52;
     border-radius: 5px;
@@ -209,6 +207,46 @@ p {
     color: #ffffff;
 }
 
+.setting__container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-left: 16px;
+    padding-right: 16px;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.setting__title{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.setting__container h3 {
+    font-size: 16px;
+    color: #ffffff;
+    overflow-y: auto;
+    margin: 0;
+}
+
+.setting__container p {
+    font-size: 14px;
+    color: #b1b1b1;
+    margin: 0;
+    padding: 0;
+}
+
+.value{
+    width: 40px;
+    font-size: 16px;
+    color: #ffffff;
+    overflow-y: auto;
+    margin: 0;
+}
+
 .privacy__level {
     padding: 0px 16px;
     display: flex;
@@ -230,7 +268,7 @@ p {
 .privacy-selector {
     display: flex;
     width: 100%;
-    max-width: 150px;
+    max-width: 200px;
     height: 48px;
     background-color: #292A2E;
     border-radius: 12px;
@@ -266,15 +304,24 @@ p {
 }
 
 .privacy-option.active[data-key="low"] {
+    font-family: Kanit, sans-serif;
     background-color: #34a853;
+    border-color: #67f389;
+    box-shadow: 0 0 10px #34a853;
 }
 
 .privacy-option.active[data-key="medium"] {
+    font-family: Kanit, sans-serif;
     background-color: #d3bd62;
+    border-color: #fff1a9;
+    box-shadow: 0 0 10px #d3bd62;
 }
 
 .privacy-option.active[data-key="high"] {
+    font-family: Kanit, sans-serif;
     background-color: #ea4335;
+    border-color: #ff766c;
+    box-shadow: 0 0 10px #ea4335;
 }
 
 .customization__body {
@@ -291,20 +338,20 @@ p {
 .separator {
     border: none;
     border-top: 1px solid #3a3b40;
-    margin: 25px 0;
+    margin: 16px 0;
 }
 
-.control-group label { /* ... */ }
+.control-group label {}
 
 .thumbnail-img {
-    width: 79px;  /* <-- Уменьшили ширину */
-    height: 45px; /* <-- Уменьшили высоту (пропорционально) */
-    object-fit: cover; /* Эта строка важна! Она обрезает, а не сжимает картинку. */
+    width: 70px;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
     border-radius: 6px;
     cursor: pointer;
     border: 2px solid transparent;
     transition: border-color 0.2s;
-    flex-shrink: 0; /* Добавляем это, чтобы картинки не сжимались, если их много */
+    flex-shrink: 0;
 }
 
 input[type="text"], select, textarea {
@@ -323,6 +370,12 @@ input[type="text"], select, textarea {
 .customization__body {
     color: white;
     padding: 16px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.customization__body::-webkit-scrollbar {
+    display: none;
 }
 
 .control-group {
@@ -357,8 +410,7 @@ input[type="text"], select, textarea {
 
 .output__container {
     position: relative;
-    width: 80%;
-    max-width: 1280px;
+    width: 100%;
 }
 
 #output, #output__mask {
@@ -376,4 +428,35 @@ input[type="text"], select, textarea {
 #output__mask {
     z-index: 2;
     background-color: transparent;
+
 }
+
+.background-carousel {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-items: center;
+    flex-wrap: wrap;
+}
+
+.thumbnail-img.selected {
+    border-color: #007BFF;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.7);
+}
+
+#performance-overlay {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-family: 'Rubik', monospace;
+    font-size: 14px;
+    z-index: 1000;
+    display: flex;
+    gap: 20px;
+    border: 1px solid #444;
+}
+
