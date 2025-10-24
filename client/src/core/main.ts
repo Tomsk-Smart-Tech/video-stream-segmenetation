@@ -1,6 +1,7 @@
 import { startCamera } from './camera';
 import { initializeModel } from './model';
-import { processFrame } from './frameProcessor';
+//import { processFrame } from './frameProcessor';
+import { processFrame } from './frameProcessor_branch';
 
 import modelUrl from '../assets/model_q4f16.onnx?url';
 
@@ -25,7 +26,7 @@ export async function run() {
 
     async function gameLoop() {
       const timings = await processFrame(videoElement, session, ctx);
-
+      //frameCount++;
       // const currentTime = performance.now();
       // frameCount++;
       // if (currentTime - lastTime >= 500) {
