@@ -23,12 +23,73 @@
                                 <span id="slider-value">1.00</span>
                             </label>
                         </div>
+                        <div class="privacy__level">
+                            <div class="title__privacy-level">
+                                <img class="privacy__icon" src="./src/assets/icons/Shield.svg" alt="Приватность">
+                                <h3>Уровень приватности</h3>
+                            </div>
+                            <div class="privacy-selector">
+                                <button class="privacy-option active low" data-key="low" data-full-name="Low" data-short-name="L">
+                                    Low
+                                </button>
+                                <button class="privacy-option medium" data-key="medium" data-full-name="Medium" data-short-name="M">
+                                    M
+                                </button>
+                                <button class="privacy-option high" data-key="high" data-full-name="High" data-short-name="H">
+                                    H
+                                </button>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
                 <div class="customization__container">
                     <div class="customization__header">
-                        <img class="customization__icon" src="./src/assets/icons/Edit_Pencil_Line_01.svg" alt="Кастомизация">
                         <h1>Кастомизация</h1>
+                    </div>
+                    <div class="customization__container">
+                        <div class="customization__body">
+                            <div class="control-section">
+                                <div class="control-group">
+                                    <label for="employee-selector">
+                                        Загрузить пресет
+                                    </label>
+                                    <select id="employee-selector">
+                                    </select>
+                                </div>
+                                <div class="control-group">
+                                    <label>
+                                        Стандартные фоны
+                                    </label>
+                                    <div class="background-carousel" id="background-carousel">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label for="background-upload-input" class="custom-upload-button">
+                                        <img src="src/assets/icons/Folder.svg" alt="">
+                                        <span>Загрузить фон</span>
+                                    </label>
+                                    <input type="file" id="background-upload-input" accept="image/*" hidden>
+                                </div>
+                            </div>
+                            <hr class="separator">
+                            <div class="control-section">
+                                <div class="control-group"><label for="full_name-input">ФИО</label><input type="text" id="full_name-input"></div>
+                                <div class="control-group"><label for="position-input">Должность</label><input type="text" id="position-input"></div>
+                                <div class="control-group"><label for="department-input">Департамент</label><input type="text" id="department-input"></div>
+                                <div class="control-group"><label for="company-input">Компания</label><input type="text" id="company-input"></div>
+                                <div class="control-group"><label for="office_location-input">Локация</label><textarea id="office_location-input" rows="2"></textarea></div>
+                                <div class="control-group"><label for="email-input">Email</label><input type="text" id="email-input"></div>
+                                <div class="control-group"><label for="telegram-input">Telegram</label><input type="text" id="telegram-input"></div>
+                                <div class="control-group">
+                                    <label for="qr-upload-input" class="custom-upload-button">
+                                        <img src="src/assets/icons/Folder.svg" alt="">
+                                        <span>Загрузить QR-код</span>
+                                    </label>
+                                    <input type="file" id="qr-upload-input" accept="image/*" hidden>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -46,5 +107,6 @@
 
         <script type="module" src="/src/index.ts"></script>
         <script type="module" src="script.ts"></script>
+        <script type="module" src="customization.ts"></script>
     </body>
 </html>
