@@ -1,25 +1,13 @@
-// client/src/core/frameProcessor.ts
+
 import type { InferenceSession, Tensor } from 'onnxruntime-web';
 import * as tf from '@tensorflow/tfjs';
 
-// Глобальный ORT (динамический импорт из CDN/скрипта)
+
 declare const ort: any;
 
-/**
- * Результат тестов Дениса:
- * Ключевые параметры подстройки:
- * - MODEL_INPUT_SIZE: [W,H] вход для MODNet. Cборка q4f16 стабильно работает с [512, 288].
- * - EMA: 0.75–0.85 — темпоральное сглаживание; выше — стабильнее, ниже — быстрее реакция.
- * - NOISE_CUTOFF/HIGH_THRESHOLD/GAMMA: мягкие пороги и гамма для волос. Диапазоны см. комментарии ниже.
- * - USE_BILATERAL и его сигмы: edge-aware фильтр для сохранения тонких волос.
- * - FACE_TRACK: включение BlazeFace-трекинга центра лица + варп предыдущей маски (убирает дрожание).
- * - WARP_GAIN: 0..1 — сила варпа; 0.5–0.8 обычно хорошо.
- */
 
-// Настройки MODNet
 const MODEL_INPUT_SIZE: [number, number] = [512, 288]; // [W,H] для MODNet q4f16
 
-// Темпоральная стабилизация
 const EMA = 0.75; // 0..1, ↑ стабильность, ↓ реактивность
 
 // Порог/гамма (мягкая логика)

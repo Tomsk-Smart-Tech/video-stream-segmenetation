@@ -1,4 +1,3 @@
-// client/src/core/camera.ts
 export async function startCamera(videoElement: HTMLVideoElement): Promise<void> {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     throw new Error('Ваш браузер не поддерживает API для доступа к камере.');
@@ -14,7 +13,7 @@ export async function startCamera(videoElement: HTMLVideoElement): Promise<void>
     });
 
     videoElement.srcObject = stream;
-    
+
     // видео начнет проигрываться => реальные размеры
     await new Promise((resolve) => {
       videoElement.onloadedmetadata = () => {
