@@ -77,35 +77,35 @@ export async function run() {
         console.log(`[L🚀] Frame ${frameIdx}: Запускаем landmarks модель...`);
         
         // ЗАПУСКАЕМ БЕЗ AWAIT!
-        runAtkshDetector(videoElement, landmarksSession)
-          .then((M) => {
-            const duration = performance.now() - landmarkStartTime;
-            if (M) {
-              console.log(`[L✅] Landmarks модель отработала за ${duration.toFixed(1)}ms. Матрица обновлена.`);
-              const WARP_GAIN = 0.7;
-              lastAffine = lastAffine
-                ? {
-                    a11: lastAffine.a11 * (1 - WARP_GAIN) + M.a11 * WARP_GAIN,
-                    a12: lastAffine.a12 * (1 - WARP_GAIN) + M.a12 * WARP_GAIN,
-                    tx:  lastAffine.tx  * (1 - WARP_GAIN) + M.tx  * WARP_GAIN,
-                    a21: lastAffine.a21 * (1 - WARP_GAIN) + M.a21 * WARP_GAIN,
-                    a22: lastAffine.a22 * (1 - WARP_GAIN) + M.a22 * WARP_GAIN,
-                    ty:  lastAffine.ty  * (1 - WARP_GAIN) + M.ty  * WARP_GAIN,
-                  }
-                : M;
-            } else {
-              // <-- ЛОГ: Случай, когда модель отработала, но лицо не нашла
-              console.log(`[L🤷] Landmarks модель отработала за ${duration.toFixed(1)}ms, но не нашла лицо.`);
-            }
-          })
-          .catch((e) => {
-            // <-- ЛОГ: Улучшаем сообщение об ошибке
-            const duration = performance.now() - landmarkStartTime;
-            console.warn(`[L❌] Фоновый запуск landmarks не удался после ${duration.toFixed(1)}ms:`, e);
-          })
-          .finally(() => {
-            landmarkInFlight = false;
-          });
+        // runAtkshDetector(videoElement, landmarksSession)
+        //   .then((M) => {
+        //     const duration = performance.now() - landmarkStartTime;
+        //     if (M) {
+        //       console.log(`[L✅] Landmarks модель отработала за ${duration.toFixed(1)}ms. Матрица обновлена.`);
+        //       const WARP_GAIN = 0.7;
+        //       lastAffine = lastAffine
+        //         ? {
+        //             a11: lastAffine.a11 * (1 - WARP_GAIN) + M.a11 * WARP_GAIN,
+        //             a12: lastAffine.a12 * (1 - WARP_GAIN) + M.a12 * WARP_GAIN,
+        //             tx:  lastAffine.tx  * (1 - WARP_GAIN) + M.tx  * WARP_GAIN,
+        //             a21: lastAffine.a21 * (1 - WARP_GAIN) + M.a21 * WARP_GAIN,
+        //             a22: lastAffine.a22 * (1 - WARP_GAIN) + M.a22 * WARP_GAIN,
+        //             ty:  lastAffine.ty  * (1 - WARP_GAIN) + M.ty  * WARP_GAIN,
+        //           }
+        //         : M;
+        //     } else {
+        //       // <-- ЛОГ: Случай, когда модель отработала, но лицо не нашла
+        //       console.log(`[L🤷] Landmarks модель отработала за ${duration.toFixed(1)}ms, но не нашла лицо.`);
+        //     }
+        //   })
+        //   .catch((e) => {
+        //     // <-- ЛОГ: Улучшаем сообщение об ошибке
+        //     const duration = performance.now() - landmarkStartTime;
+        //     console.warn(`[L❌] Фоновый запуск landmarks не удался после ${duration.toFixed(1)}ms:`, e);
+        //   })
+          // .finally(() => {
+          //   landmarkInFlight = false;
+          // });
       }
 
       requestAnimationFrame(loop);
