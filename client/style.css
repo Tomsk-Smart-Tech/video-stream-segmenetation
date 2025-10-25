@@ -223,8 +223,19 @@ p {
     justify-content: space-between;
     padding-left: 16px;
     padding-right: 16px;
-    gap: 8px;
+
     margin-bottom: 16px;
+}
+
+.settings__body.expanded {
+    max-height: 600px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    transition: max-height 0.5s ease-in, padding 0.5s ease-in;
 }
 
 .setting__title{
@@ -258,10 +269,77 @@ p {
     display: none;
 }
 
+.settings-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    width: 30px;
+    height: 30px;
+}
+.settings-toggle-btn svg {
+    fill: #aeb1b4;
+    transition: transform 0.3s ease;
+}
+.settings-toggle-btn.active svg {
+    transform: rotate(180deg);
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+    flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4a4d52; transition: .4s; border-radius: 28px; }
+.toggle-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .toggle-slider { background-color: #3381FF; }
+input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+.reset-btn {
+    align-self: flex-end;
+    width: 30px;
+    height: 30px;
+    background-color: #ed1212;
+    border:  none;
+    color: #ffffff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings__icon {
+    width: 20px;
+    height: 20px;
+}
+
+.settings__icon.hidden {
+    display: none;
+}
+
+.reset-btn:hover {
+    box-shadow: 0 0 10px #ea4335;
+    transition: box-shadow 0.2s;
+    color: white;
+}
+
+.settings-group__header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .settings-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
     padding: 16px;
     color: white;
 }
@@ -294,6 +372,8 @@ p {
     align-items: center;
     justify-content: space-between;
 }
+
+
 
 .control-container {
     display: flex;
@@ -382,6 +462,8 @@ p {
     border-color: #67f389;
     box-shadow: 0 0 10px #34a853;
 }
+
+
 
 .privacy-option.active[data-key="medium"] {
     font-family: Kanit, sans-serif;

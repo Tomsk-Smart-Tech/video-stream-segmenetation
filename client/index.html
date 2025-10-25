@@ -22,16 +22,21 @@
                             <h1>Настройки</h1>
                         </div>
                         <div class="settings__container-buttons">
+
                             <button id="toggle-settings-btn" class="settings-toggle-btn">
                                 <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
                             </button>
-                            <button id="reset-settings-btn" class="reset-btn">Сбросить настройки</button>
                         </div>
                     </div>
                     <div class="settings__body">
                         <div class="settings__body hidden" id="settings-body-content">
                             <div class="settings-group">
-                                <h3>Темпоральная стабилизация</h3>
+                                <div class="settings-group__header">
+                                    <h3>Темпоральная стабилизация</h3>
+                                    <button id="reset-settings-btn" class="reset-btn">
+                                        <img class="settings__icon" src="./src/assets/icons/Undo.svg" alt="">
+                                    </button>
+                                </div>
                                 <div class="slider-control" title="Экспоненциальное сглаживание. ↑ = более стабильная, но 'ленивая' маска. ↓ = более быстрая, но 'шумная' маска.">
                                     <label for="ema-slider">EMA</label>
                                     <div class="control-container">
@@ -45,22 +50,22 @@
                                 <div class="slider-control" title="Порог отсечения шума. Убирает слабые значения в маске. ↑ = более агрессивное удаление 'пыли', но может повредить края.">
                                     <label for="noise-cutoff-slider">Noise Cutoff</label>
                                     <div class="control-container">
-                                        <input type="range" id="noise-cutoff-slider" min="0.04" max="0.08" step="0.005" value="0.06" class="slider">
+                                        <input type="range" id="noise-cutoff-slider" min="0.00" max="0.3" step="0.01" value="0.06" class="slider">
                                         <span id="noise-cutoff-value" class="slider-value-display">0.060</span>
                                     </div>
                                 </div>
                                 <div class="slider-control" title="Верхний порог. Значения выше этого становятся 100% непрозрачными. ↓ = более резкие и контрастные края.">
                                     <label for="high-threshold-slider">High Threshold</label>
                                     <div class="control-container">
-                                        <input type="range" id="high-threshold-slider" min="0.92" max="0.98" step="0.005" value="0.95" class="slider">
+                                        <input type="range" id="high-threshold-slider" min="0.7" max="1.0" step="0.01" value="0.95" class="slider">
                                         <span id="high-threshold-value" class="slider-value-display">0.950</span>
                                     </div>
                                 </div>
                                 <div class="slider-control" title="Гамма-коррекция. Управляет яркостью полупрозрачных областей. ↓ = делает полутона более заметными и плотными.">
                                     <label for="gamma-slider">Gamma</label>
                                     <div class="control-container">
-                                        <input type="range" id="gamma-slider" min="0.1" max="2" step="0.01" value="0.6" class="slider">
-                                        <span id="gamma-value" class="slider-value-display">0.60</span>
+                                        <input type="range" id="gamma-slider" min="0.2" max="3" step="0.01" value="0.6" class="slider">
+                                        <span id="gamma-value" class="slider-value-display">0.6</span>
                                     </div>
                                 </div>
                             </div>
@@ -73,7 +78,7 @@
                                 <div class="slider-control" title="Пространственный радиус фильтра. ↑ = более сильное размытие по площади.">
                                     <label for="sigma-spatial-slider">Sigma Spatial</label>
                                     <div class="control-container">
-                                        <input type="range" id="sigma-spatial-slider" min="0.1" max="5" step="0.1" value="1.0" class="slider">
+                                        <input type="range" id="sigma-spatial-slider" min="0.5" max="10" step="0.1" value="1.0" class="slider">
                                         <span id="sigma-spatial-value" class="slider-value-display">1.0</span>
                                     </div>
                                 </div>
@@ -85,6 +90,7 @@
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                         <div class="privacy__level">
                             <div class="title__privacy-level">

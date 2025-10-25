@@ -1,27 +1,24 @@
-// client/src/core/frameProcessorRVM.ts
 import type { InferenceSession, Tensor } from 'onnxruntime-web';
 import * as tf from '@tensorflow/tfjs';
 declare const ort: any;
 
-// Тюнинг
-const MODEL_INPUT_SIZE: [number, number] = [512, 288]; // [W,H]
-const DOWNSAMPLE_RATIO = 0.25; // 0.25–0.5: ↑быстрее, ↓качество
+
+const MODEL_INPUT_SIZE: [number, number] = [512, 288];
+const DOWNSAMPLE_RATIO = 0.25;
 const USE_EMA = true;
 const EMA_BLEND = 0.7;
 
-// Canvas для маски (размер входа модели)
 const maskCanvas = document.createElement('canvas');
 maskCanvas.width = MODEL_INPUT_SIZE[0];
 maskCanvas.height = MODEL_INPUT_SIZE[1];
 const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true })!;
 
-// Рекуррентные состояния
 let r1: Tensor | null = null; // [1,16,dH,dW] float32
 let r2: Tensor | null = null; // [1,20,dH,dW] float32
 let r3: Tensor | null = null; // [1,40,dH,dW] float32
 let r4: Tensor | null = null; // [1,64,dH,dW] float32
 
-// EMA буфер
+
 let prevAlpha: Float32Array | null = null;
 
 export async function processFrame(
@@ -31,7 +28,7 @@ export async function processFrame(
 ): Promise<{ inferenceTime: number; totalTime: number }> {
   const totalStart = performance.now();
 
-  // 1) Препроцесс: NHWC → NCHW, [0..1], FP32
+
   const frame = tf.browser.fromPixels(videoElement);
   const resized = tf.image.resizeBilinear(frame, [MODEL_INPUT_SIZE[1], MODEL_INPUT_SIZE[0]]);
   const normalized = resized.div(255.0);
@@ -42,14 +39,12 @@ export async function processFrame(
 
   frame.dispose(); resized.dispose(); normalized.dispose(); transposed.dispose(); inputTensorTf.dispose();
 
-  // 2) downsample_ratio и dims для r-стейтов
   const H = src.dims[2], W = src.dims[3];
   const dH = Math.max(1, Math.round(H * DOWNSAMPLE_RATIO));
   const dW = Math.max(1, Math.round(W * DOWNSAMPLE_RATIO));
 
   const ratio = new ort.Tensor('float32', new Float32Array([DOWNSAMPLE_RATIO]), [1]);
 
-  // Инициализация r-стейтов (один раз) → [1,C,dH,dW] float32 нули
   if (!r1 || r1.dims[2] !== dH || r1.dims[3] !== dW) {
     r1 = zeroF32([1, 16, dH, dW]);
     r2 = zeroF32([1, 20, dH, dW]);
@@ -63,26 +58,21 @@ export async function processFrame(
     r1i: r1!, r2i: r2!, r3i: r3!, r4i: r4!,
   };
 
-  // 3) Инференс
   const infStart = performance.now();
   const results = await session.run(feeds);
   const infEnd = performance.now();
 
-  // 4) Выходы
-  // pha может быть float16/float32 — обработаем универсально
-  const phaT = results['pha'] as Tensor; // [1,1,H,W]
-  r1 = results['r1o'] as Tensor; // [1,16,dH,dW]
+
+  const phaT = results['pha'] as Tensor;
+  r1 = results['r1o'] as Tensor;
   r2 = results['r2o'] as Tensor;
   r3 = results['r3o'] as Tensor;
   r4 = results['r4o'] as Tensor;
 
-  // 5) Сжать pha в [H*W] в FP32
   const alpha = toFloat32Squeezed(phaT);
 
-  // EMA
   const alphaSmoothed = USE_EMA ? ema(alpha, EMA_BLEND) : alpha;
 
-  // 6) Маска → ImageData → композит
   const maskImage = alphaToImageData(alphaSmoothed, W, H);
   maskCtx.putImageData(maskImage, 0, 0);
 
@@ -97,7 +87,6 @@ export async function processFrame(
   return { inferenceTime: infEnd - infStart, totalTime: totalEnd - totalStart };
 }
 
-/* === Минимальные утилиты === */
 
 // Нулевой float32 тензор
 function zeroF32(dims: number[]): Tensor {
@@ -123,7 +112,7 @@ function toFloat32Squeezed(t: Tensor): Float32Array {
     for (let i = 0; i < total; i++) out[i] = u8[i] / 255;
     return out;
   } else {
-    // Fallback: копируем как есть и обрезаем
+
     const any = t.data as any;
     const out = new Float32Array(total);
     for (let i = 0; i < total; i++) out[i] = any[i] as number;
@@ -143,7 +132,7 @@ function alphaToImageData(alpha: Float32Array, w: number, h: number): ImageData 
   return img;
 }
 
-// EMA
+
 function ema(current: Float32Array, k: number): Float32Array {
   if (!prevAlpha || prevAlpha.length !== current.length) {
     prevAlpha = current.slice(); return current;
@@ -156,7 +145,6 @@ function ema(current: Float32Array, k: number): Float32Array {
   return out;
 }
 
-/* FP16 → FP32 */
 function f16BitsToF32(h: number): number {
   const sign = (h >>> 15) & 1; let exp = (h >>> 10) & 0x1F; let mant = h & 0x3FF;
   if (exp === 0) { if (mant === 0) return sign ? -0 : 0; const m = mant / 1024.0; return (sign ? -1 : 1) * m * Math.pow(2, -14); }
