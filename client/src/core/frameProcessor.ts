@@ -20,7 +20,7 @@ declare const ort: any;
 const MODEL_INPUT_SIZE: [number, number] = [512, 288]; // [W,H] для MODNet q4f16
 
 // Темпоральная стабилизация
-const EMA = 0.7; // 0..1, ↑ стабильность, ↓ реактивность
+const EMA = 0.75; // 0..1, ↑ стабильность, ↓ реактивность
 
 // Порог/гамма (мягкая логика)
 const NOISE_CUTOFF = 0.06;     // все ниже — 0 (0.04–0.08)
