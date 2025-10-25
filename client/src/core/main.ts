@@ -60,11 +60,15 @@ export async function run() {
         landmarkInFlight = true; // Поднимаем флаг
         lastLandmarkRunAt = now;
 
+        const landmarkStartTime = performance.now();
+        console.log(`[L🚀] Frame ${frameIdx}: Запускаем landmarks модель...`);
+        
         // ЗАПУСКАЕМ БЕЗ AWAIT!
         runAtkshDetector(videoElement, landmarksSession)
           .then((M) => {
-            // Этот код выполнится, когда модель отработает, НЕ блокируя рендер
+            const duration = performance.now() - landmarkStartTime;
             if (M) {
+              console.log(`[L✅] Landmarks модель отработала за ${duration.toFixed(1)}ms. Матрица обновлена.`);
               const WARP_GAIN = 0.7;
               lastAffine = lastAffine
                 ? {
@@ -76,13 +80,17 @@ export async function run() {
                     ty:  lastAffine.ty  * (1 - WARP_GAIN) + M.ty  * WARP_GAIN,
                   }
                 : M;
+            } else {
+              // <-- ЛОГ: Случай, когда модель отработала, но лицо не нашла
+              console.log(`[L🤷] Landmarks модель отработала за ${duration.toFixed(1)}ms, но не нашла лицо.`);
             }
           })
           .catch((e) => {
-            console.warn('Фоновый запуск landmarks не удался:', e);
+            // <-- ЛОГ: Улучшаем сообщение об ошибке
+            const duration = performance.now() - landmarkStartTime;
+            console.warn(`[L❌] Фоновый запуск landmarks не удался после ${duration.toFixed(1)}ms:`, e);
           })
           .finally(() => {
-            // Опускаем флаг в любом случае, чтобы разрешить следующий запуск
             landmarkInFlight = false;
           });
       }
@@ -103,5 +111,47 @@ async function runAtkshDetector(
   video: HTMLVideoElement,
   session: any
 ): Promise<{ a11: number; a12: number; tx: number; a21: number; a22: number; ty: number } | null> {
-    // ... ваш код без изменений ...
+    // Снимаем текущий кадр
+const c = document.createElement('canvas');
+c.width = video.videoWidth;
+c.height = video.videoHeight;
+const cx = c.getContext('2d', { willReadFrequently: true })!;
+cx.drawImage(video, 0, 0, c.width, c.height);
+const img = cx.getImageData(0, 0, c.width, c.height);
+const u8 = img.data;
+// Формируем uint8 [H,W,3]
+const hw3 = new Uint8Array(c.width * c.height * 3);
+for (let i = 0, p = 0; i < u8.length; i += 4) {
+hw3[p++] = u8[i];
+hw3[p++] = u8[i + 1];
+hw3[p++] = u8[i + 2];
+}
+const inp = new ort.Tensor('uint8', hw3, [c.height, c.width, 3]);
+// Запуск
+const outputs = await session.run({ input: inp }) as Record<string, any>;
+const scoresT = outputs['scores'];
+const MT = outputs['M'];
+if (!scoresT || !MT) return null;
+const scores = scoresT.data as Float32Array;
+const Mdata = MT.data as Float32Array;
+const N = scoresT.dims[0];
+const stride = 6; // 2x3
+if (!N || N <= 0) return null;
+let bestIdx = 0;
+let bestScore = -Infinity;
+for (let i = 0; i < N; i++) {
+const s = scores[i];
+if (s > bestScore) {
+bestScore = s;
+bestIdx = i;
+}
+}
+const base = bestIdx * stride;
+const a11 = Mdata[base + 0];
+const a12 = Mdata[base + 1];
+const tx  = Mdata[base + 2];
+const a21 = Mdata[base + 3];
+const a22 = Mdata[base + 4];
+const ty  = Mdata[base + 5];
+return { a11, a12, tx, a21, a22, ty };
 }
