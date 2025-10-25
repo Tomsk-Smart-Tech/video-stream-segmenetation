@@ -17,39 +17,75 @@
             <section class="toolbar">
                 <div class="settings__container">
                     <div class="settings__header">
-                        <img class="settings__icon" src="./src/assets/icons/Settings.svg" alt="Настройки">
-                        <h1>Настройки</h1>
+                        <div class="settings__header__title">
+                            <img class="settings__icon" src="./src/assets/icons/Settings.svg" alt="Настройки">
+                            <h1>Настройки</h1>
+                        </div>
+                        <div class="settings__container-buttons">
+                            <button id="toggle-settings-btn" class="settings-toggle-btn">
+                                <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                            </button>
+                            <button id="reset-settings-btn" class="reset-btn">Сбросить настройки</button>
+                        </div>
                     </div>
                     <div class="settings__body">
-<!--                        <div class="downsample_ratio">-->
-<!--                            <h3>DOWNSAMPLE_RATIO</h3>-->
-<!--                            <label class="switch">-->
-<!--                                <input type="range" id="downsample-slider" min="0" max="1" step="0.01" value="0.25" class="slider">-->
-<!--                                <span id="slider-value">0.25</span>-->
-<!--                            </label>-->
-<!--                        </div>-->
-<!--                        <div class="setting__container EMA">-->
-<!--                            <h3>Темпоральная стабилизация</h3>-->
-<!--                            <label class="switch">-->
-<!--                                <input type="range" id="EMA-slider" min="0" max="1" step="0.01" value="0.8" class="slider">-->
-<!--                                <span class="value">0.8</span>-->
-<!--                            </label>-->
-<!--                        </div>-->
-<!--                        <div class="setting__container NOISE_CUTOFF">-->
-<!--                            <h3>NOISE_CUTOFF</h3>-->
-<!--                            <label class="switch">-->
-<!--                                <input type="range" id="NOISE_CUTOFF-slider" min="0.04" max="0.08" step="0.005" value="0.06" class="slider">-->
-<!--                                <span class="value">0.06</span>-->
-<!--                            </label>-->
-<!--                        </div>-->
-<!--                        <div class="setting__container HIGH_THRESHOLD">-->
-<!--                            <h3>HIGH_THRESHOLD</h3>-->
-<!--                            <label class="switch">-->
-<!--                                <input type="range" id="HIGH_THRESHOLD-slider" min="0.92" max="0.98" step="0.005" value="0.95" class="slider">-->
-<!--                                <span class="value">0.95</span>-->
-<!--                            </label>-->
-<!--                        </div>-->
-
+                        <div class="settings__body hidden" id="settings-body-content">
+                            <div class="settings-group">
+                                <h3>Темпоральная стабилизация</h3>
+                                <div class="slider-control" title="Экспоненциальное сглаживание. ↑ = более стабильная, но 'ленивая' маска. ↓ = более быстрая, но 'шумная' маска.">
+                                    <label for="ema-slider">EMA</label>
+                                    <div class="control-container">
+                                        <input type="range" id="ema-slider" min="0" max="1" step="0.01" value="0.55" class="slider">
+                                        <span id="ema-value" class="slider-value-display">0.55</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="settings-group">
+                                <h3>Порог/гамма</h3>
+                                <div class="slider-control" title="Порог отсечения шума. Убирает слабые значения в маске. ↑ = более агрессивное удаление 'пыли', но может повредить края.">
+                                    <label for="noise-cutoff-slider">Noise Cutoff</label>
+                                    <div class="control-container">
+                                        <input type="range" id="noise-cutoff-slider" min="0.04" max="0.08" step="0.005" value="0.06" class="slider">
+                                        <span id="noise-cutoff-value" class="slider-value-display">0.060</span>
+                                    </div>
+                                </div>
+                                <div class="slider-control" title="Верхний порог. Значения выше этого становятся 100% непрозрачными. ↓ = более резкие и контрастные края.">
+                                    <label for="high-threshold-slider">High Threshold</label>
+                                    <div class="control-container">
+                                        <input type="range" id="high-threshold-slider" min="0.92" max="0.98" step="0.005" value="0.95" class="slider">
+                                        <span id="high-threshold-value" class="slider-value-display">0.950</span>
+                                    </div>
+                                </div>
+                                <div class="slider-control" title="Гамма-коррекция. Управляет яркостью полупрозрачных областей. ↓ = делает полутона более заметными и плотными.">
+                                    <label for="gamma-slider">Gamma</label>
+                                    <div class="control-container">
+                                        <input type="range" id="gamma-slider" min="0.1" max="2" step="0.01" value="0.6" class="slider">
+                                        <span id="gamma-value" class="slider-value-display">0.60</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="settings-group">
+                                <h3>Edge-aware фильтр</h3>
+                                <div class="toggle-control" title="Включает/выключает билатеральный фильтр, который сглаживает маску, сохраняя четкость краев.">
+                                    <label for="bilateral-toggle">Use Bilateral</label>
+                                    <label class="toggle-switch"><input type="checkbox" id="bilateral-toggle" checked><span class="toggle-slider"></span></label>
+                                </div>
+                                <div class="slider-control" title="Пространственный радиус фильтра. ↑ = более сильное размытие по площади.">
+                                    <label for="sigma-spatial-slider">Sigma Spatial</label>
+                                    <div class="control-container">
+                                        <input type="range" id="sigma-spatial-slider" min="0.1" max="5" step="0.1" value="1.0" class="slider">
+                                        <span id="sigma-spatial-value" class="slider-value-display">1.0</span>
+                                    </div>
+                                </div>
+                                <div class="slider-control" title="Цветовой радиус фильтра. ↑ = фильтр менее чувствителен к перепадам цвета и размывает сильнее.">
+                                    <label for="sigma-range-slider">Sigma Range</label>
+                                    <div class="control-container">
+                                        <input type="range" id="sigma-range-slider" min="1" max="30" step="1" value="12" class="slider">
+                                        <span id="sigma-range-value" class="slider-value-display">12</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="privacy__level">
                             <div class="title__privacy-level">
                                 <img class="privacy__icon" src="./src/assets/icons/Shield.svg" alt="Приватность">

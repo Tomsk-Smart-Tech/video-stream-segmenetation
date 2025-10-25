@@ -180,7 +180,7 @@ p {
 .slider {
     -webkit-appearance: none;
     appearance: none;
-    width: 100px;
+    width: 180px;
     height: 8px;
     background: #4a4d52;
     border-radius: 5px;
@@ -235,11 +235,74 @@ p {
     gap: 8px;
 }
 
+.settings__header__title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings__header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.settings__container-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+.settings__body.hidden {
+    display: none;
+}
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    color: white;
+}
+
+.settings-group h3 {
+    color: white;
+}
+
 .setting__container h3 {
     font-size: 16px;
     color: #ffffff;
     overflow-y: auto;
-    margin: 0;
+    padding: 0;
+}
+
+.settings-group h3  {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.toggle-control {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.settings__container .slider-control {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.control-container {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+.control-container span {
+    width: 40px;
 }
 
 .setting__container p {
@@ -470,4 +533,7 @@ input[type="text"], select, textarea {
     gap: 20px;
     border: 1px solid #444;
 }
+
+
+
 
