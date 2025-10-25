@@ -6,10 +6,10 @@ declare const ort: any;
 
 // Параметры
 const MODEL_INPUT_SIZE: [number, number] = [512, 288];
-const EMA = 0.8;
+const EMA = 0.55;
 const NOISE_CUTOFF = 0.06;
 const HIGH_THRESHOLD = 0.95;
-const GAMMA = 0.8;
+const GAMMA = 0.6;
 const USE_BILATERAL = true;
 const BILATERAL_SIGMA_SPATIAL = 1.0;
 const BILATERAL_SIGMA_RANGE = 12.0;
@@ -71,9 +71,15 @@ export async function processFrame(
       opts.lastAffine.a11, opts.lastAffine.a12, opts.lastAffine.tx,
       opts.lastAffine.a21, opts.lastAffine.a22, opts.lastAffine.ty
     );
-    // мягкое смешивание
     for (let i = 0; i < baseAlpha.length; i++) {
-      baseAlpha[i] = 0.5 * baseAlpha[i] + 0.5 * warped[i];
+      const currentPixel = baseAlpha[i];
+      const warpedPixel = warped[i];
+  
+  // Вместо простого усреднения, берем максимальное значение из двух.
+  // Это позволит "заполнить" дыры в текущей маске данными из предыдущей,
+  // не "разбавляя" при этом хорошие пиксели.
+  // Можно добавить небольшой коэффициент затухания для warped, чтобы избежать "хвостов".
+      baseAlpha[i] = Math.max(currentPixel, warpedPixel * 0.75); 
     }
   }
 
@@ -128,10 +134,10 @@ function alphaToImageData(alpha: Float32Array, w: number, h: number): ImageData 
   for (let i = 0; i < alpha.length; i++) {
     const a = Math.max(0, Math.min(1, alpha[i]));
     const p = i * 4;
-    pixels[p] = 255;         // R
-    pixels[p + 1] = 255;     // G
-    pixels[p + 2] = 255;     // B
-    pixels[p + 3] = Math.round(a * 255); // A
+    pixels[p] = 255;       // R - используем значение маски
+    pixels[p + 1] = 255;   // G
+    pixels[p + 2] = 255;   // B
+    pixels[p + 3] = Math.round(a * 255);
   }
   return imageData;
 }
