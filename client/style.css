@@ -277,11 +277,11 @@ p {
     width: 30px;
     height: 30px;
 }
-.settings-toggle-btn svg {
+.settings-toggle-btn img {
     fill: #aeb1b4;
     transition: transform 0.3s ease;
 }
-.settings-toggle-btn.active svg {
+.settings-toggle-btn.active img {
     transform: rotate(180deg);
 }
 
