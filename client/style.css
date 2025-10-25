@@ -35,7 +35,8 @@ body,
 #root {
     height: 100%;
     margin: 0;
-    background-color: #111314;
+    /*background-color: #111314;*/
+    background: linear-gradient(90deg,rgba(17, 19, 20, 1) 0%, rgba(19, 19, 33, 1) 100%);
     font-family: Kanit, sans-serif;
     display: flex;
     justify-content:  center;
@@ -59,9 +60,9 @@ body,
     display: flex;
     flex-direction: column;
     flex: 1;
-    /*background-color: #292A2E;*/
     border-radius: 12px;
     gap: 20px;
+
 }
 
 .settings__container {
@@ -70,6 +71,16 @@ body,
     flex-direction: column;
     background-color: #292A2E;
     border-radius: 12px;
+}
+
+.settings__container,
+.customization__container__main {
+    border: #3a3b40 2px solid;
+    border-top: #60606a 2px solid;
+    border-bottom: #26262b 2px solid;
+    /*box-shadow:*/
+    /*        inset 0px 3px #60606a,*/
+    /*        inset 0px -3px #26262b;*/
 }
 
 .customization__container {
@@ -110,7 +121,6 @@ canvas {
 
 .output__container {
     position: relative;
-    /* Задаем пропорции, чтобы контейнер не схлопывался */
     width: 100%;
     aspect-ratio: 16 / 9;
 }
@@ -326,7 +336,7 @@ p {
 
 .customization__body {
     overflow-y: auto;
-    padding-right: 10px; /* место для скроллбара */
+    padding-right: 10px;
 }
 
 .control-section {
@@ -344,7 +354,7 @@ p {
 .control-group label {}
 
 .thumbnail-img {
-    width: 70px;
+    width: 85px;
     aspect-ratio: 16 / 9;
     object-fit: cover;
     border-radius: 6px;
@@ -437,6 +447,7 @@ input[type="text"], select, textarea {
     gap: 8px;
     justify-items: center;
     flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 .thumbnail-img.selected {

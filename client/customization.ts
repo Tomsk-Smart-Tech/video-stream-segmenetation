@@ -1,13 +1,10 @@
-// --- 1. ТИПЫ ДАННЫХ (Обновленные) ---
 export type PrivacyLevel = 'low' | 'medium' | 'high';
 interface Shadow { color: string; blur: number; offsetX: number; offsetY: number; }
-// Добавляем radius в интерфейс
 interface TemplateLayer { type: string; privacy: PrivacyLevel; content: string; x: number; y: number; font?: string; color?: string; align?: CanvasTextAlign; lineHeight?: number; width?: number; height?: number; bgColor?: string; shadow?: Shadow; radius?: number; }
 interface Template { name: string; layers: TemplateLayer[]; }
 interface Employee { full_name: string; position: string; company: string; department: string; office_location: string; email: string; telegram: string; qr_code_url: string; company_logo_url: string; slogan: string; default_template_id: string; default_background: string; }
 interface AppData { background_options: string[]; templates: { [key: string]: Template }; employees: { [key: string]: Employee }; }
 
-// --- 2. ЭЛЕМЕНТЫ (Без изменений) ---
 const canvas = document.getElementById('output') as HTMLCanvasElement, ctx = canvas.getContext('2d');
 const employeeSelector = document.getElementById('employee-selector') as HTMLSelectElement;
 const backgroundCarousel = document.getElementById('background-carousel') as HTMLDivElement;
@@ -27,14 +24,12 @@ const textInputs = {
     slogan: document.getElementById('slogan-input') as HTMLInputElement
 };
 
-// --- 3. СОСТОЯНИЕ (Без изменений) ---
 let appData: AppData, currentState: Employee, currentTemplate: Template;
 let currentPrivacy: PrivacyLevel = 'medium';
 const images: { [key: string]: HTMLImageElement } = { background: new Image(), qr_code: new Image(), email_icon: new Image(), telegram_icon: new Image(), company_logo: new Image() };
 images.email_icon.src = './src/assets/logo/email_logo.png';
 images.telegram_icon.src = './src/assets/logo/tg_logo.png';
 
-// --- 4. ЭКСПОРТ И ОТРИСОВКА (Обновленная) ---
 export function setPrivacyLevel(level: PrivacyLevel) { currentPrivacy = level; updateCanvas(); }
 
 export function updateCanvas() {
@@ -110,7 +105,6 @@ function changeResource(imgKey: keyof typeof images, src: string) {
     images[imgKey].onerror = () => { console.error(`Ошибка загрузки: ${src}`); updateCanvas(); };
 }
 
-// --- 6. ГЛАВНАЯ ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ (Без изменений) ---
 async function main() {
     try { appData = await (await fetch('/data.json')).json(); }
     catch (e) { alert('Критическая ошибка: не удалось загрузить data.json. Убедитесь, что он лежит в папке public.'); return; }

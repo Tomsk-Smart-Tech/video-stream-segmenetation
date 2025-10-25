@@ -6,7 +6,15 @@
     "./src/assets/backgrounds/1920х1080_4.png",
     "./src/assets/backgrounds/Dion_1.png",
     "./src/assets/backgrounds/Dion_2.png",
-    "./src/assets/backgrounds/Dion_3.png"
+    "./src/assets/backgrounds/Dion_3.png",
+    "./src/assets/backgrounds/Dion_4.png",
+    "./src/assets/backgrounds/Dion_5.png",
+    "./src/assets/backgrounds/Dion_6.png",
+    "./src/assets/backgrounds/Dion_7.png",
+    "./src/assets/backgrounds/Dion_8.png",
+    "./src/assets/backgrounds/Dion_9.png",
+    "./src/assets/backgrounds/Dion_10.png",
+    "./src/assets/backgrounds/Dion_11.png"
   ],
   "templates": {
     "corporate_violet": {
@@ -53,7 +61,13 @@
           "font": "32px Rubik, sans-serif",
           "color": "#D0D0D0",
           "align": "left",
-          "lineHeight": 40
+          "lineHeight": 40,
+          "shadow": {
+            "color": "rgba(0,0,0,0.7)",
+            "blur": 5,
+            "offsetX": 2,
+            "offsetY": 2
+          }
         },
         {
           "type": "image",
@@ -72,7 +86,13 @@
           "y": 90,
           "font": "28px Rubik, sans-serif",
           "color": "#FFFFFF",
-          "align": "right"
+          "align": "right",
+          "shadow": {
+            "color": "rgba(0,0,0,0.7)",
+            "blur": 5,
+            "offsetX": 2,
+            "offsetY": 2
+          }
         },
         {
           "type": "image",
@@ -91,7 +111,13 @@
           "y": 150,
           "font": "28px Rubik, sans-serif",
           "color": "#FFFFFF",
-          "align": "right"
+          "align": "right",
+          "shadow": {
+            "color": "rgba(0,0,0,0.7)",
+            "blur": 5,
+            "offsetX": 2,
+            "offsetY": 2
+          }
         },
         {
           "type": "image",
@@ -137,7 +163,13 @@
           "font": "28px Rubik, sans-serif",
           "color": "#E0E0E0",
           "align": "left",
-          "lineHeight": 32
+          "lineHeight": 32,
+          "shadow": {
+            "color": "rgba(0,0,0,0.7)",
+            "blur": 5,
+            "offsetX": 2,
+            "offsetY": 2
+          }
         }
       ]
     },
@@ -150,18 +182,18 @@
 
         { "type": "text", "privacy": "low", "content": "full_name", "x": 80, "y": 120, "font": "bold 84px Kanit, sans-serif", "color": "#FFFFFF", "align": "left", "shadow": { "color": "rgba(0,0,0,0.5)", "blur": 8, "offsetX": 2, "offsetY": 2 } },
         { "type": "text", "privacy": "low", "content": "position", "x": 80, "y": 230, "font": "36px Rubik, sans-serif", "color": "#E0E0E0", "align": "left", "shadow": { "color": "rgba(0,0,0,0.7)", "blur": 5, "offsetX": 2, "offsetY": 2 } },
-        { "type": "text", "privacy": "medium", "content": "department_and_company", "x": 80, "y": 300, "font": "32px Rubik, sans-serif", "color": "#D0D0D0", "align": "left", "lineHeight": 40 },
+        { "type": "text", "privacy": "medium", "content": "department_and_company", "x": 80, "y": 300, "font": "32px Rubik, sans-serif", "color": "#D0D0D0", "align": "left", "lineHeight": 40, "shadow": { "color": "rgba(0,0,0,1)", "blur": 5, "offsetX": 2, "offsetY": 2 } },
 
         { "type": "image", "privacy": "high", "content": "email_icon", "x": 1820, "y": 90, "width": 40, "height": 40 },
-        { "type": "text", "privacy": "high", "content": "email", "x": 1800, "y": 100, "font": "28px Rubik, sans-serif", "color": "#FFFFFF", "align": "right" },
+        { "type": "text", "privacy": "high", "content": "email", "x": 1800, "y": 100, "font": "28px Rubik, sans-serif", "color": "#FFFFFF", "align": "right", "shadow": { "color": "rgba(0,0,0,0.7)", "blur": 5, "offsetX": 2, "offsetY": 2 } },
         { "type": "image", "privacy": "high", "content": "telegram_icon", "x": 1820, "y": 150, "width": 40, "height": 40 },
-        { "type": "text", "privacy": "high", "content": "telegram", "x": 1800, "y": 160, "font": "28px Rubik, sans-serif", "color": "#FFFFFF", "align": "right" },
+        { "type": "text", "privacy": "high", "content": "telegram", "x": 1800, "y": 160, "font": "28px Rubik, sans-serif", "color": "#FFFFFF", "align": "right", "shadow": { "color": "rgba(0,0,0,0.7)", "blur": 5, "offsetX": 2, "offsetY": 2 } },
         { "type": "image", "privacy": "high", "content": "qr_code", "x": 1550, "y": 230, "width": 150, "height": 150 },
 
         { "type": "text", "privacy": "medium", "content": "office_location", "x": 1880, "y": 980, "font": "32px Rubik, sans-serif", "color": "#FFFFFF", "align": "right", "lineHeight": 40, "shadow": { "color": "rgba(0,0,0,0.7)", "blur": 5, "offsetX": 2, "offsetY": 2 } },
 
         { "type": "image", "privacy": "medium", "content": "company_logo", "x": 80, "y": 880, "width": 80, "height": 80, "shadow": { "color": "rgba(0,0,0,0.5)", "blur": 8, "offsetX": 2, "offsetY": 2 } },
-        { "type": "text", "privacy": "medium", "content": "slogan", "x": 80, "y": 1000, "font": "28px Rubik, sans-serif", "color": "#E0E0E0", "align": "left", "lineHeight": 32 }
+        { "type": "text", "privacy": "medium", "content": "slogan", "x": 80, "y": 1000, "font": "28px Rubik, sans-serif", "color": "#E0E0E0", "align": "left", "lineHeight": 32, "shadow": { "color": "rgba(0,0,0,0.7)", "blur": 5, "offsetX": 2, "offsetY": 2 } }
       ]
     }
   },
@@ -188,7 +220,7 @@
       "office_location": "г. Томск,\nОбщежитие ТПУ",
       "email": "zybink91@gmail.com",
       "telegram": "@mys2020",
-      "qr_code_url": "./src/assets/icons/qr.png",
+      "qr_code_url": "./src/assets/test/qr.png",
       "default_template_id": "corporate_violet",
       "default_background": "./src/assets/backgrounds/1920х1080_3.png",
       "company_logo_url": "./src/assets/logo/VK_Logo.svg",
