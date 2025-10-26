@@ -8,8 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tensorflow/tfjs": "^4.22.0",
-    "onnxruntime-web": "^1.23.0"
+    "@tensorflow/tfjs": "^4.22.0"
   },
   "devDependencies": {
     "typescript": "^5.2.2",

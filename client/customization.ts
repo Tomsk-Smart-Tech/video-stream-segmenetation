@@ -1,7 +1,8 @@
 export type PrivacyLevel = 'low' | 'medium' | 'high';
-interface TemplateLayer { type: string; privacy: PrivacyLevel; content: string; x: number; y: number; font?: string; color?: string; align?: CanvasTextAlign; lineHeight?: number; width?: number; height?: number; bgColor?: string; }
+interface Shadow { color: string; blur: number; offsetX: number; offsetY: number; }
+interface TemplateLayer { type: string; privacy: PrivacyLevel; content: string; x: number; y: number; font?: string; color?: string; align?: CanvasTextAlign; lineHeight?: number; width?: number; height?: number; bgColor?: string; shadow?: Shadow; radius?: number; }
 interface Template { name: string; layers: TemplateLayer[]; }
-interface Employee { full_name: string; position: string; company: string; department: string; office_location: string; email: string; telegram: string; qr_code_url: string; default_template_id: string; default_background: string; }
+interface Employee { full_name: string; position: string; company: string; department: string; office_location: string; email: string; telegram: string; qr_code_url: string; company_logo_url: string; slogan: string; default_template_id: string; default_background: string; }
 interface AppData { background_options: string[]; templates: { [key: string]: Template }; employees: { [key: string]: Employee }; }
 
 const canvas = document.getElementById('output') as HTMLCanvasElement, ctx = canvas.getContext('2d');
@@ -9,7 +10,8 @@ const employeeSelector = document.getElementById('employee-selector') as HTMLSel
 const backgroundCarousel = document.getElementById('background-carousel') as HTMLDivElement;
 const uploadInputs = {
     background: document.getElementById('background-upload-input') as HTMLInputElement,
-    qr_code: document.getElementById('qr-upload-input') as HTMLInputElement
+    qr_code: document.getElementById('qr-upload-input') as HTMLInputElement,
+    company_logo: document.getElementById('company-logo-upload-input') as HTMLInputElement
 };
 const textInputs = {
     full_name: document.getElementById('full_name-input') as HTMLInputElement,
@@ -19,11 +21,12 @@ const textInputs = {
     office_location: document.getElementById('office_location-input') as HTMLTextAreaElement,
     email: document.getElementById('email-input') as HTMLInputElement,
     telegram: document.getElementById('telegram-input') as HTMLInputElement,
+    slogan: document.getElementById('slogan-input') as HTMLInputElement
 };
 
 let appData: AppData, currentState: Employee, currentTemplate: Template;
 let currentPrivacy: PrivacyLevel = 'medium';
-const images: { [key: string]: HTMLImageElement } = { background: new Image(), qr_code: new Image(), email_icon: new Image(), telegram_icon: new Image() };
+const images: { [key: string]: HTMLImageElement } = { background: new Image(), qr_code: new Image(), email_icon: new Image(), telegram_icon: new Image(), company_logo: new Image() };
 images.email_icon.src = './src/assets/logo/email_logo.png';
 images.telegram_icon.src = './src/assets/logo/tg_logo.png';
 
@@ -41,16 +44,35 @@ export function updateCanvas() {
     currentTemplate.layers.forEach(layer => {
         if (privacyLevels[layer.privacy] > currentLevel) return;
 
+
         ctx.fillStyle = layer.color || '#FFFFFF';
         ctx.textAlign = layer.align || 'left';
         ctx.font = layer.font || '24px Rubik';
 
         if (layer.type === 'text') {
+            if (layer.shadow) {
+                ctx.shadowColor = layer.shadow.color;
+                ctx.shadowBlur = layer.shadow.blur;
+                ctx.shadowOffsetX = layer.shadow.offsetX;
+                ctx.shadowOffsetY = layer.shadow.offsetY;
+            }
             const text = layer.content === 'department_and_company' ? `${currentState.department}\n${currentState.company}` : (currentState as any)[layer.content];
             drawMultilineText(text, layer.x, layer.y, layer.lineHeight || 40);
+            if (layer.shadow) {
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+            }
         } else if (layer.type === 'image') {
             const img = images[layer.content];
             if (img?.complete && img.naturalHeight) ctx.drawImage(img, layer.x, layer.y, layer.width!, layer.height!);
+        }
+        else if (layer.type === 'roundedRect') {
+            ctx.fillStyle = layer.color!;
+            ctx.beginPath();
+            ctx.roundRect(layer.x, layer.y, layer.width!, layer.height!, layer.radius!);
+            ctx.fill();
         }
     });
 }
@@ -66,6 +88,14 @@ function updateUIFromState() {
     textInputs.office_location.value = currentState.office_location;
     textInputs.email.value = currentState.email;
     textInputs.telegram.value = currentState.telegram;
+    textInputs.slogan.value = currentState.slogan;
+}
+
+function updateSelectedThumbnail(selectedSrc: string | null) {
+    backgroundCarousel.querySelectorAll<HTMLImageElement>('.thumbnail-img').forEach(img => {
+        if (selectedSrc && img.dataset.src === selectedSrc) img.classList.add('selected');
+        else img.classList.remove('selected');
+    });
 }
 
 function changeResource(imgKey: keyof typeof images, src: string) {
@@ -76,18 +106,16 @@ function changeResource(imgKey: keyof typeof images, src: string) {
 }
 
 async function main() {
-    try { appData = await (await fetch('./data.json')).json(); }
-    catch (e) { alert('Критическая ошибка: не удалось загрузить data.json.'); return; }
+    try { appData = await (await fetch('/data.json')).json(); }
+    catch (e) { alert('Критическая ошибка: не удалось загрузить data.json. Убедитесь, что он лежит в папке public.'); return; }
 
     Object.keys(appData.employees).forEach(key => employeeSelector.add(new Option(appData.employees[key].full_name, key)));
+
     appData.background_options.forEach(src => {
         const img = document.createElement('img');
-        img.src = src; img.className = 'thumbnail-img';
-        img.onclick = () => {
-            changeResource('background', src);
-            backgroundCarousel.querySelector('.selected')?.classList.remove('selected');
-            img.classList.add('selected');
-        };
+        img.src = src; img.className = 'thumbnail-img'; img.dataset.src = src;
+        img.onerror = () => console.error(`Не удалось загрузить миниатюру фона: ${src}`);
+        img.onclick = () => { changeResource('background', src); updateSelectedThumbnail(src); };
         backgroundCarousel.appendChild(img);
     });
 
@@ -97,10 +125,8 @@ async function main() {
         updateUIFromState();
         changeResource('background', currentState.default_background);
         changeResource('qr_code', currentState.qr_code_url);
-
-        backgroundCarousel.querySelector('.selected')?.classList.remove('selected');
-        const activeThumb = backgroundCarousel.querySelector<HTMLImageElement>(`[src="${currentState.default_background}"]`);
-        if (activeThumb) activeThumb.classList.add('selected');
+        changeResource('company_logo', currentState.company_logo_url);
+        updateSelectedThumbnail(currentState.default_background);
         updateCanvas();
     };
 

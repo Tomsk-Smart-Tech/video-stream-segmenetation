@@ -154,3 +154,5 @@ tags
 client/public/models/test.html
 .mjs
 .jsep
+
+.onnx
