@@ -1,41 +1,51 @@
-// client/src/core/frameProcessor_branch.ts
 import type { InferenceSession, Tensor } from 'onnxruntime-web';
 import * as tf from '@tensorflow/tfjs';
 
 declare const ort: any;
 
-// Параметры
-const MODEL_INPUT_SIZE: [number, number] = [512, 288];
-const EMA = 0.55;
-const NOISE_CUTOFF = 0.06;
-const HIGH_THRESHOLD = 0.95;
-const GAMMA = 0.6;
-const USE_BILATERAL = true;
-const BILATERAL_SIGMA_SPATIAL = 1.0;
-const BILATERAL_SIGMA_RANGE = 12.0;
 
-// Временные холсты
+const MODEL_INPUT_SIZE: [number, number] = [512, 288];
+
+const default_EMA = 0.55;
+const default_NOISE_CUTOFF = 0.06;
+const default_HIGH_THRESHOLD = 0.95;
+const default_GAMMA = 0.4;
+const default_USE_BILATERAL = true;
+const default_BILATERAL_SIGMA_SPATIAL = 1.0;
+const default_BILATERAL_SIGMA_RANGE = 12.0;
+
+export const defaultConfig = {
+  EMA: default_EMA,
+  NOISE_CUTOFF: default_NOISE_CUTOFF,
+  HIGH_THRESHOLD: default_HIGH_THRESHOLD,
+  GAMMA: default_GAMMA,
+  USE_BILATERAL: default_USE_BILATERAL,
+  BILATERAL_SIGMA_SPATIAL: default_BILATERAL_SIGMA_SPATIAL,
+  BILATERAL_SIGMA_RANGE: default_BILATERAL_SIGMA_RANGE,
+};
+
+export let config = { ...defaultConfig };
+
+
 const maskCanvas = document.createElement('canvas');
 maskCanvas.width = MODEL_INPUT_SIZE[0];
 maskCanvas.height = MODEL_INPUT_SIZE[1];
 const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true })!;
 
-// Состояние
+
 let prevAlpha: Float32Array | null = null;
 
-// Опции вызова
+
 type ProcessOpts = {
   lastAffine?: { a11: number; a12: number; tx: number; a21: number; a22: number; ty: number } | null;
 };
 
-/**
- * Главная функция: MODNet инференс + варп по аффинной матрице + EMA + bilateral + порог/гамма + композит.
- */
+
 export async function processFrame(
-  videoElement: HTMLVideoElement,
-  session: InferenceSession,
-  outputCtx: CanvasRenderingContext2D,
-  opts: ProcessOpts = {}
+    videoElement: HTMLVideoElement,
+    session: InferenceSession,
+    outputCtx: CanvasRenderingContext2D,
+    opts: ProcessOpts = {}
 ): Promise<{ inferenceTime: number; totalTime: number }> {
   const totalStartTime = performance.now();
 
@@ -63,38 +73,30 @@ export async function processFrame(
 
   let baseAlpha = alphaRaw;
 
-  // Варп предыдущей маски по lastAffine, если есть
   if (opts.lastAffine && prevAlpha && prevAlpha.length === baseAlpha.length) {
     const w = maskW, h = maskH;
     const warped = warpAffineNearest(
-      prevAlpha, w, h,
-      opts.lastAffine.a11, opts.lastAffine.a12, opts.lastAffine.tx,
-      opts.lastAffine.a21, opts.lastAffine.a22, opts.lastAffine.ty
+        prevAlpha, w, h,
+        opts.lastAffine.a11, opts.lastAffine.a12, opts.lastAffine.tx,
+        opts.lastAffine.a21, opts.lastAffine.a22, opts.lastAffine.ty
     );
     for (let i = 0; i < baseAlpha.length; i++) {
       const currentPixel = baseAlpha[i];
       const warpedPixel = warped[i];
-  
-  // Вместо простого усреднения, берем максимальное значение из двух.
-  // Это позволит "заполнить" дыры в текущей маске данными из предыдущей,
-  // не "разбавляя" при этом хорошие пиксели.
-  // Можно добавить небольшой коэффициент затухания для warped, чтобы избежать "хвостов".
-      baseAlpha[i] = Math.max(currentPixel, warpedPixel * 0.75); 
+
+      baseAlpha[i] = Math.max(currentPixel, warpedPixel * 0.75);
     }
   }
 
-  // EMA
+
   const emaAlpha = temporalEMA(baseAlpha);
 
-  // Bilateral (edge-aware) на масштабе маски
-  const guidedAlpha = USE_BILATERAL
-    ? jointBilateral3x3(emaAlpha, sampleGuidePixels(videoElement, maskW, maskH), maskW, maskH)
-    : emaAlpha;
+  const guidedAlpha = config.USE_BILATERAL
+      ? jointBilateral3x3(emaAlpha, sampleGuidePixels(videoElement, maskW, maskH), maskW, maskH)
+      : emaAlpha;
 
-  // Порог + гамма
   const refinedAlpha = refineAlphaOnce(guidedAlpha);
 
-  // Маска → ImageData → композит
   const maskImageData = alphaToImageData(refinedAlpha, maskW, maskH);
   maskCtx.putImageData(maskImageData, 0, 0);
 
@@ -113,7 +115,6 @@ export async function processFrame(
   };
 }
 
-// Сжатие [1,1,H,W] → Float32Array(H*W)
 function squeezeMaskTo2D(maskTensor: Tensor): Float32Array {
   const [_, __, h, w] = maskTensor.dims;
   const total = h * w;
@@ -127,7 +128,6 @@ function squeezeMaskTo2D(maskTensor: Tensor): Float32Array {
   return f32.length === total ? f32 : new Float32Array(f32.slice(0, total));
 }
 
-// Превратить плоскую маску (Float32Array H×W) в ImageData (белый + альфа)
 function alphaToImageData(alpha: Float32Array, w: number, h: number): ImageData {
   const imageData = new ImageData(w, h);
   const pixels = imageData.data;
@@ -148,20 +148,45 @@ function temporalEMA(current: Float32Array): Float32Array {
     return current;
   }
   for (let i = 0; i < current.length; i++) {
-    prevAlpha[i] = EMA * prevAlpha[i] + (1 - EMA) * current[i];
+    prevAlpha[i] = config.EMA * prevAlpha[i] + (1 - config.EMA) * current[i];
   }
   return prevAlpha;
 }
+// function temporalEMA(current: Float32Array): Float32Array {
+//   if (!prevAlpha || prevAlpha.length !== current.length) {
+//     prevAlpha = current.slice();
+//     return current;
+//   }
+
+//   // Порог, ниже которого мы считаем пиксель "дырой" в потенциально сплошной области
+//   const HOLE_THRESHOLD = 0.1;
+
+//   for (let i = 0; i < current.length; i++) {
+//     const currentPixel = current[i];
+//     const prevPixel = prevAlpha[i];
+
+//     if (currentPixel < HOLE_THRESHOLD && prevPixel > (HOLE_THRESHOLD + 0.2)) {
+//       // Если текущий пиксель - это внезапная дыра, а на прошлом кадре здесь был объект,
+//       // то мы почти полностью доверяем старому значению, лишь немного его затухая.
+//       // Это эффективно "затыкает" мгновенные дыры.
+//       prevAlpha[i] = prevPixel * 0.90; // Коэффициент затухания, чтобы избежать "зависших" артефактов
+//     } else {
+//       // В остальных случаях используем стандартное EMA-сглаживание
+//       prevAlpha[i] = config.EMA * prevPixel + (1 - config.EMA) * currentPixel;
+//     }
+//   }
+
+//   return prevAlpha;
+// }
 
 // Совместный билатеральный фильтр 3×3 (edge-aware)
-
 function jointBilateral3x3(
-  alpha: Float32Array,
-  guidePixels: Uint8ClampedArray,
-  w: number,
-  h: number,
-  sigmaSpatial = BILATERAL_SIGMA_SPATIAL,
-  sigmaRange = BILATERAL_SIGMA_RANGE
+    alpha: Float32Array,
+    guidePixels: Uint8ClampedArray,
+    w: number,
+    h: number,
+    sigmaSpatial = config.BILATERAL_SIGMA_SPATIAL,
+    sigmaRange = config.BILATERAL_SIGMA_RANGE
 ): Float32Array {
   const out = new Float32Array(w * h);
   const twoSigmaS2 = 2 * sigmaSpatial * sigmaSpatial;
@@ -195,7 +220,7 @@ function jointBilateral3x3(
 
 // — вспомогательные функции ниже —
 
-function refineAlphaOnce(a: Float32Array, low = NOISE_CUTOFF, high = HIGH_THRESHOLD, gamma = GAMMA): Float32Array {
+function refineAlphaOnce(a: Float32Array, low = config.NOISE_CUTOFF, high = config.HIGH_THRESHOLD, gamma = config.GAMMA): Float32Array {
   const out = new Float32Array(a.length);
   const denom = Math.max(1e-6, high - low);
   for (let i = 0; i < a.length; i++) {
@@ -232,11 +257,11 @@ function invertAffine(a11: number, a12: number, tx: number, a21: number, a22: nu
 }
 
 function warpAffineNearest(
-  src: Float32Array,
-  w: number,
-  h: number,
-  a11: number, a12: number, tx: number,
-  a21: number, a22: number, ty: number
+    src: Float32Array,
+    w: number,
+    h: number,
+    a11: number, a12: number, tx: number,
+    a21: number, a22: number, ty: number
 ): Float32Array {
   const out = new Float32Array(w * h);
   const inv = invertAffine(a11, a12, tx, a21, a22, ty);
